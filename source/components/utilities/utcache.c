@@ -238,6 +238,14 @@ AcpiOsPurgeCache (
         return (AE_BAD_PARAMETER);
     }
 
+#ifdef ACPI_DBG_TRACK_ALLOCATIONS
+	if (Cache->GetCacheRequest != Cache->PutCacheRequest)
+	{
+		fprintf(stderr, "    [*] Cache leak is detected!! Name: %s, ObjectSize: %d, GetCacheRequest: %d != PutCacheRequest: %d\n", 
+			Cache->ListName, Cache->ObjectSize, Cache->GetCacheRequest, Cache->PutCacheRequest);
+	}
+#endif
+
     Status = AcpiUtAcquireMutex (ACPI_MTX_CACHES);
     if (ACPI_FAILURE (Status))
     {
@@ -330,6 +338,8 @@ AcpiOsReleaseObject (
         return (AE_BAD_PARAMETER);
     }
 
+    ACPI_MEM_TRACKING (Cache->PutCacheRequest++);
+
     /* If cache is full, just free this object */
 
     if (Cache->CurrentDepth >= Cache->MaxDepth)
@@ -402,6 +412,7 @@ AcpiOsAcquireObject (
     }
 
     ACPI_MEM_TRACKING (Cache->Requests++);
+    ACPI_MEM_TRACKING (Cache->GetCacheRequest++);
 
     /* Check the cache first */
 

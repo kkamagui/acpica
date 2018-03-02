@@ -211,6 +211,16 @@
 #define ACPI_DBG_TRACK_ALLOCATIONS
 #endif
 
+/* AcpiExec configuration. Multithreaded with full AML debugger */
+
+#ifdef ACPI_LINUX_KERNEL_APP
+#define ACPI_APPLICATION
+#define ACPI_FULL_DEBUG
+#define ACPI_MUTEX_DEBUG
+#define ACPI_DBG_TRACK_ALLOCATIONS
+#endif
+
+
 /* AcpiHelp configuration. Error messages disabled. */
 
 #ifdef ACPI_HELP_APP
@@ -227,7 +237,8 @@
 
 #if (defined ACPI_EXEC_APP)     || \
     (defined ACPI_EXAMPLE_APP)  || \
-    (defined ACPI_NAMES_APP)
+    (defined ACPI_NAMES_APP)    || \
+    (defined ACPI_LINUX_KERNEL_APP)
 #define ACPI_USE_NATIVE_RSDP_POINTER
 #endif
 

@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Module Name: utuuid -- UUID support functions
+ * Module Name: aecommon - common include for the AcpiExec utility
  *
  *****************************************************************************/
 
@@ -149,63 +149,175 @@
  *
  *****************************************************************************/
 
+#ifndef _AECOMMON
+#define _AECOMMON
+
+#ifdef _MSC_VER                 /* disable some level-4 warnings */
+#pragma warning(disable:4100)   /* warning C4100: unreferenced formal parameter */
+#endif
+
 #include "acpi.h"
 #include "accommon.h"
+#include "acparser.h"
+#include "amlcode.h"
+#include "acnamesp.h"
+#include "acdebug.h"
+#include "actables.h"
+#include "acinterp.h"
+#include "amlresrc.h"
+#include "acapps.h"
 
-#define _COMPONENT          ACPI_COMPILER
-        ACPI_MODULE_NAME    ("utuuid")
 
-
-#if (defined ACPI_ASL_COMPILER || defined ACPI_EXEC_APP || defined ACPI_HELP_APP || defined ACPI_LINUX_KERNEL_APP)
 /*
- * UUID support functions.
- *
- * This table is used to convert an input UUID ascii string to a 16 byte
- * buffer and the reverse. The table maps a UUID buffer index 0-15 to
- * the index within the 36-byte UUID string where the associated 2-byte
- * hex value can be found.
- *
- * 36-byte UUID strings are of the form:
- *     aabbccdd-eeff-gghh-iijj-kkllmmnnoopp
- * Where aa-pp are one byte hex numbers, made up of two hex digits
- *
- * Note: This table is basically the inverse of the string-to-offset table
- * found in the ACPI spec in the description of the ToUUID macro.
+ * Debug Regions
  */
-const UINT8    AcpiGbl_MapToUuidOffset[UUID_BUFFER_LENGTH] =
+typedef struct ae_region
 {
-    6,4,2,0,11,9,16,14,19,21,24,26,28,30,32,34
-};
+    ACPI_PHYSICAL_ADDRESS   Address;
+    UINT32                  Length;
+    void                    *Buffer;
+    void                    *NextRegion;
+    UINT8                   SpaceId;
+
+} AE_REGION;
+
+typedef struct ae_debug_regions
+{
+    UINT32                  NumberOfRegions;
+    AE_REGION               *RegionList;
+
+} AE_DEBUG_REGIONS;
 
 
-/*******************************************************************************
- *
- * FUNCTION:    AcpiUtConvertStringToUuid
- *
- * PARAMETERS:  InString            - 36-byte formatted UUID string
- *              UuidBuffer          - Where the 16-byte UUID buffer is returned
- *
- * RETURN:      None. Output data is returned in the UuidBuffer
- *
- * DESCRIPTION: Convert a 36-byte formatted UUID string to 16-byte UUID buffer
- *
- ******************************************************************************/
+extern BOOLEAN              AcpiGbl_IgnoreErrors;
+extern UINT8                AcpiGbl_RegionFillValue;
+extern UINT8                AcpiGbl_UseHwReducedFadt;
+extern BOOLEAN              AcpiGbl_DisplayRegionAccess;
+extern BOOLEAN              AcpiGbl_DoInterfaceTests;
+extern BOOLEAN              AcpiGbl_LoadTestTables;
+extern FILE                 *AcpiGbl_NamespaceInitFile;
+extern ACPI_CONNECTION_INFO AeMyContext;
+
+
+#define TEST_OUTPUT_LEVEL(lvl)          if ((lvl) & OutputLevel)
+
+#define OSD_PRINT(lvl,fp)               TEST_OUTPUT_LEVEL(lvl) {\
+                                            AcpiOsPrintf PARAM_LIST(fp);}
+
+void ACPI_SYSTEM_XFACE
+AeCtrlCHandler (
+    int                     Sig);
+
+ACPI_STATUS
+AeBuildLocalTables (
+    ACPI_NEW_TABLE_DESC     *TableList);
+
+ACPI_STATUS
+AeInstallTables (
+    void);
+
+ACPI_STATUS
+AeLoadTables (
+    void);
 
 void
-AcpiUtConvertStringToUuid (
-    char                    *InString,
-    UINT8                   *UuidBuffer)
-{
-    UINT32                  i;
+AeDumpNamespace (
+    void);
+
+void
+AeDumpObject (
+    char                    *MethodName,
+    ACPI_BUFFER             *ReturnObj);
+
+void
+AeDumpBuffer (
+    UINT32                  Address);
+
+void
+AeExecute (
+    char                    *Name);
+
+void
+AeSetScope (
+    char                    *Name);
+
+void
+AeCloseDebugFile (
+    void);
+
+void
+AeOpenDebugFile (
+    char                    *Name);
+
+ACPI_STATUS
+AeDisplayAllMethods (
+    UINT32                  DisplayCount);
+
+ACPI_STATUS
+AeInstallEarlyHandlers (
+    void);
+
+ACPI_STATUS
+AeInstallLateHandlers (
+    void);
+
+void
+AeMiscellaneousTests (
+    void);
+
+ACPI_STATUS
+AeRegionHandler (
+    UINT32                  Function,
+    ACPI_PHYSICAL_ADDRESS   Address,
+    UINT32                  BitWidth,
+    UINT64                  *Value,
+    void                    *HandlerContext,
+    void                    *RegionContext);
+
+UINT32
+AeGpeHandler (
+    ACPI_HANDLE             GpeDevice,
+    UINT32                  GpeNumber,
+    void                    *Context);
+
+void
+AeGlobalEventHandler (
+    UINT32                  Type,
+    ACPI_HANDLE             GpeDevice,
+    UINT32                  EventNumber,
+    void                    *Context);
+
+/* aeregion */
+
+ACPI_STATUS
+AeInstallDeviceHandlers (
+    void);
+
+void
+AeInstallRegionHandlers (
+    void);
+
+void
+AeOverrideRegionHandlers (
+    void);
 
 
-    for (i = 0; i < UUID_BUFFER_LENGTH; i++)
-    {
-        UuidBuffer[i] = (AcpiUtAsciiCharToHex (
-            InString[AcpiGbl_MapToUuidOffset[i]]) << 4);
+/* aeinitfile */
 
-        UuidBuffer[i] |= AcpiUtAsciiCharToHex (
-            InString[AcpiGbl_MapToUuidOffset[i] + 1]);
-    }
-}
-#endif
+int
+AeOpenInitializationFile (
+    char                    *Filename);
+
+void
+AeDoObjectOverrides (
+    void);
+
+void
+ExInitializeAcpiTables (
+    void);
+
+ACPI_PHYSICAL_ADDRESS
+AcpiOsGetRootPointer (
+    void);
+
+#endif /* _AECOMMON */

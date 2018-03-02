@@ -1451,6 +1451,8 @@ typedef struct acpi_memory_list
     UINT32                          CurrentTotalSize;
     UINT32                          Requests;
     UINT32                          Hits;
+    UINT32                          GetCacheRequest;
+    UINT32                          PutCacheRequest;
 #endif
 
 } ACPI_MEMORY_LIST;

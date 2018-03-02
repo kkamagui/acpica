@@ -377,7 +377,6 @@ AcpiUtDeleteCaches (
     AcpiOsFree (AcpiGbl_NsNodeList);
     AcpiGbl_NsNodeList = NULL;
 #endif
-
     return (AE_OK);
 }
 

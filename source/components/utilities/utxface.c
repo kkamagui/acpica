@@ -412,7 +412,6 @@ AcpiPurgeCachedObjects (
 {
     ACPI_FUNCTION_TRACE (AcpiPurgeCachedObjects);
 
-
     (void) AcpiOsPurgeCache (AcpiGbl_StateCache);
     (void) AcpiOsPurgeCache (AcpiGbl_OperandCache);
     (void) AcpiOsPurgeCache (AcpiGbl_PsNodeCache);

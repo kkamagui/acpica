@@ -188,7 +188,7 @@ typedef void* (*PTHREAD_CALLBACK) (void *);
 
 /* Terminal support for AcpiExec only */
 
-#ifdef ACPI_EXEC_APP
+#if defined(ACPI_EXEC_APP) || defined(ACPI_LINUX_KERNEL_APP)
 #include <termios.h>
 
 struct termios              OriginalTermAttributes;
@@ -429,7 +429,7 @@ AcpiOsTableOverride (
 
     *NewTable = NULL;
 
-#ifdef ACPI_EXEC_APP
+#if defined(ACPI_EXEC_APP) || defined(ACPI_LINUX_KERNEL_APP)
 
     AeTableOverride (ExistingTable, NewTable);
     return (AE_OK);
@@ -629,7 +629,7 @@ AcpiOsVprintf (
 }
 
 
-#ifndef ACPI_EXEC_APP
+#if !defined(ACPI_EXEC_APP) && !defined(ACPI_LINUX_KERNEL_APP)
 /******************************************************************************
  *
  * FUNCTION:    AcpiOsGetLine

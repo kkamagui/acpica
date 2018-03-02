@@ -428,6 +428,18 @@ AcpiNsEvaluate (
 
         Status = AE_OK;
     }
+#if 0		// https://github.com/acpica/acpica/pull/296
+    else if (ACPI_FAILURE(Status))
+    {
+        /* If ReturnObject exists, delete it */
+
+        if (Info->ReturnObject)
+        {
+            AcpiUtRemoveReference (Info->ReturnObject);
+            Info->ReturnObject = NULL;
+        }
+    }
+#endif
 
     ACPI_DEBUG_PRINT ((ACPI_DB_NAMES,
         "*** Completed evaluation of object %s ***\n",

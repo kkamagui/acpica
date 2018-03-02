@@ -357,7 +357,7 @@ AcpiOsTableOverride (
     *NewTable = NULL;
 
 
-#ifdef ACPI_EXEC_APP
+#if defined(ACPI_EXEC_APP) || defined(ACPI_LINUX_KERNEL_APP)
 
     /* Call back up to AcpiExec */
 
