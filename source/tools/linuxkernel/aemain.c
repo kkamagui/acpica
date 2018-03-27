@@ -679,6 +679,11 @@ main (
 	printf("    Emulate Linux Kernel Startup\n");
 	printf("========================================\n");
 
+	printf("\n");
+	printf("========================================\n");
+	printf("    Emulate Early Initialization\n");
+	printf("========================================\n");
+
     /* Linux kernel set these options to TRUE by default */
     AcpiGbl_EnableInterpreterSlack = TRUE;
     AcpiGbl_VerifyTableChecksum = FALSE;
@@ -768,6 +773,29 @@ main (
     
     /* Initialize the ACPI hardware */
 	AcpiGetHandle(NULL, "\\_SB", &handle);
+
+    /* Create the ACPI namespace from ACPI tables */
+
+    Status = AcpiLoadTables ();
+    if (ACPI_FAILURE (Status))
+    {
+        ACPI_EXCEPTION ((AE_INFO, Status, "While loading ACPI tables"));
+        goto ErrorExit;
+        //return (Status);
+    }
+
+	printf("\n");
+	printf("========================================\n");
+	printf("    Emulate Normal Initialization\n");
+	printf("========================================\n");
+
+    Status = AcpiEnableSubsystem (ACPI_NO_ACPI_ENABLE);
+    if (ACPI_FAILURE (Status))
+    {
+        ACPI_EXCEPTION ((AE_INFO, Status, "While enabling ACPICA with NO_ACPI_ENABLE"));
+        goto ErrorExit;
+        //return (Status);
+    }
 
     Status = AcpiEnableSubsystem (ACPI_FULL_INITIALIZATION);
     if (ACPI_FAILURE (Status))
